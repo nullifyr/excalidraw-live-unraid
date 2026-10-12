@@ -13,12 +13,12 @@
   <Overview>Live agent-editable Excalidraw canvas with persistent scenes, images and snapshots. Packages yctimlin/mcp_excalidraw (MIT), unchanged, plus a stdio MCP launcher. One shared scene; coordinate concurrent editors. No authentication. Default port binds to server loopback and requires an SSH tunnel for browser access. MCP connects through SSH and docker exec -i; port 3000 is browser/REST/WebSocket, not HTTP MCP. Runs as UID 99/GID 100 with a read-only root filesystem. See install instructions before changing exposure.</Overview>
   <Category>Productivity: Tools:Utilities</Category>
   <Icon>https://raw.githubusercontent.com/nullifyr/excalidraw-live-unraid/main/icon.svg</Icon>
-  <WebUI>http://127.0.0.1:3031/</WebUI>
+  <WebUI>http://[IP]:[PORT:3000]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/nullifyr/excalidraw-live-unraid/main/templates/excalidraw-live.xml</TemplateURL>
   <ExtraSearchTerms>excalidraw mcp ai canvas diagrams</ExtraSearchTerms>
   <MinVer>6.12.0</MinVer>
   <ExtraParams>--init --user=99:100 --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m,mode=1777 --cap-drop=ALL --security-opt=no-new-privileges:true --pids-limit 128 --memory=1g --restart=unless-stopped --stop-timeout=10 --log-opt max-size=10m --log-opt max-file=3</ExtraParams>
-  <Config Name="Canvas port (loopback)" Target="3000" Default="127.0.0.1:3031" Mode="tcp" Description="Host binding IP:port. Keep 127.0.0.1; forward this port with SSH. Container port is fixed at 3000. WebUI URL assumes local forwarded port 3031." Type="Port" Display="always" Required="true" Mask="false">127.0.0.1:3031</Config>
+  <Config Name="Canvas port (loopback)" Target="3000" Default="3031" Mode="tcp" Description="Host binding port. forward this port with SSH. Container port is fixed at 3000. " Type="Port" Display="always" Required="true" Mask="false">3031</Config>
   <Config Name="Persistent appdata" Target="/data" Default="/mnt/user/appdata/excalidraw-live" Mode="rw" Description="Dedicated writable directory owned by UID 99/GID 100. Back up the complete directory while stopped. Never share between canvas instances." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/excalidraw-live</Config>
   <Config Name="Persistent data directory" Target="EXCALIDRAW_DATA_DIR" Default="/data" Mode="" Description="Keep /data to enable durable scene, binary files and snapshots." Type="Variable" Display="advanced" Required="true" Mask="false">/data</Config>
   <Config Name="Timezone" Target="TZ" Default="Etc/UTC" Mode="" Description="Timezone for the container." Type="Variable" Display="advanced" Required="false" Mask="false">Etc/UTC</Config>
