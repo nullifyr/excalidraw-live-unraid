@@ -1,6 +1,6 @@
 {
   "name": "mcp-excalidraw-server",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Excalidraw toolkit for AI coding agents \u2014 agent skill, CLI, and MCP server with a live canvas",
   "main": "dist/index.js",
   "type": "module",
@@ -21,7 +21,7 @@
     "production": "npm run build && npm run canvas",
     "prepublishOnly": "npm run build",
     "sync:skills": "node scripts/sync-skills.mjs",
-    "test": "npm run test:mcp && npm run test:bind && npm run test:render && npm run test:state && npm run test:durable",
+    "test": "npm run test:mcp && npm run test:bind && npm run test:render && npm run test:state && npm run test:durable && npm run test:share && npm run test:paths",
     "test:bind": "npm run build:server && node scripts/check-local-bind.mjs",
     "test:mcp": "npm run build:server && node scripts/check-mcp-stdio.mjs",
     "test:render": "npm run build:server && node scripts/check-render.mjs",
@@ -30,11 +30,13 @@
     "test:canvas": "npm run build && playwright test",
     "type-check:frontend": "tsc --noEmit -p frontend/tsconfig.json",
     "test:durable": "npm run build:server && node scripts/check-durable-state.mjs",
+    "test:share": "npm run build:server && node scripts/check-share-url.mjs",
+    "test:paths": "npm run build:server && node scripts/check-file-paths.mjs",
     "type-check": "npx tsc --noEmit"
   },
   "dependencies": {
-    "@modelcontextprotocol/core": "2.0.0",
-    "@modelcontextprotocol/server": "2.0.0",
+    "@modelcontextprotocol/core": "2.4.0",
+    "@modelcontextprotocol/server": "2.4.0",
     "@resvg/resvg-js": "^2.6.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -42,8 +44,8 @@
     "jsdom": "^26.1.0",
     "winston": "^3.11.0",
     "ws": "^8.21.3",
-    "zod": "^3.22.4",
-    "zod-to-json-schema": "^3.22.3"
+    "zod": "^4.6.7",
+    "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
     "@excalidraw/excalidraw": "^0.18.1",
@@ -116,7 +118,6 @@
   ],
   "overrides": {
     "proxy-addr": "2.0.8",
-    "qs": "6.16.0",
     "dompurify": "3.4.17",
     "lodash-es": "4.18.1",
     "nanoid@<4": "3.3.20",

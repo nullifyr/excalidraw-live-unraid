@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Container version="2">
   <Name>excalidraw-live</Name>
-  <Repository>ghcr.io/nullifyr/excalidraw-live-unraid:1.0.1</Repository>
+  <Repository>ghcr.io/nullifyr/excalidraw-live-unraid:1.0.2</Repository>
   <Registry>https://github.com/nullifyr/excalidraw-live-unraid/pkgs/container/excalidraw-live-unraid</Registry>
   <Network>bridge</Network>
   <MyIP/>

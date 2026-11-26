@@ -1,6 +1,6 @@
 services:
   excalidraw-live:
-    image: ghcr.io/nullifyr/excalidraw-live-unraid:1.0.1
+    image: ghcr.io/nullifyr/excalidraw-live-unraid:1.0.2
     container_name: excalidraw-live
     user: "99:100"
     ports:

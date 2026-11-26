@@ -5,8 +5,8 @@ A persistent, live agent-editable Excalidraw canvas, packaged from
 application source changes. Includes the browser canvas, REST/WebSocket server,
 headless rendering, CLI and **stdio MCP** runtime in one image.
 
-Upstream: **2.1.2**, commit `8084a1c8b410d625fcfd59d5cffb32f3a86a2a6f`.
-Package: **1.0.1**. Linux amd64; tested on Unraid 7.3.0-rc.2.
+Upstream: **2.2.0**, commit `81720ac819d2325177cd6137c6ad41d52d0f5374`.
+Package: **1.0.2**. Linux amd64; tested on Unraid 7.3.0-rc.2.
 
 ## Install on Unraid
 
@@ -120,8 +120,8 @@ and the [qs advisories](https://github.com/advisories/GHSA-4mjr-xmp4-gh2g).
 Additional compatible frontend and build-tool patches are pinned in
 [`build/package.json`](build/package.json), covering dependencies compiled into
 the browser bundle as well as server dependencies. The full build lockfile and
-production dependency audits both report zero advisories at the 1.0.1 release
-build. Application source is unchanged. Refresh this overlay from the reviewed upstream
+production dependency audits both report zero advisories at the 1.0.2 release
+build. Application source is unchanged except one line patched at build time for zod 4 (see the Dockerfile). Refresh this overlay from the reviewed upstream
 manifest when updating; regenerate its lock with `npm install --package-lock-only
 --ignore-scripts --prefix build`. Full and runtime dependency audits are build gates.
 The Node base image is pinned by multi-platform manifest digest; builds use `npm ci`. Build checks run
