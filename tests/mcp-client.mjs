@@ -6,6 +6,12 @@ export function connectMcp(command) {
   let sequence = 0;
   let buffer = '';
   let stderr = '';
+  let terminalError;
+  const fail = error => {
+    terminalError ||= error;
+    for (const request of pending.values()) { clearTimeout(request.timer); request.reject(terminalError); }
+    pending.clear();
+  };
   child.stderr.on('data', chunk => { stderr = (stderr + chunk).slice(-4000); });
   child.stdout.on('data', chunk => {
     buffer += chunk;
@@ -15,8 +21,7 @@ export function connectMcp(command) {
       if (!line.trim()) continue;
       let response;
       try { response = JSON.parse(line); } catch {
-        for (const request of pending.values()) request.reject(new Error('Non-JSON stdout from MCP'));
-        pending.clear();
+        fail(new Error('Non-JSON stdout from MCP'));
         child.kill();
         return;
       }
@@ -28,13 +33,12 @@ export function connectMcp(command) {
       }
     }
   });
-  const fail = error => {
-    for (const request of pending.values()) { clearTimeout(request.timer); request.reject(error); }
-    pending.clear();
-  };
   child.on('error', fail);
-  child.on('exit', code => fail(new Error(`MCP exited (${code}): ${stderr}`)));
+  // close follows drained stdout; exit may precede the final response.
+  child.on('close', code => fail(new Error(`MCP exited (${code}): ${stderr}`)));
+  child.stdin.on('error', fail);
   const request = (method, params) => new Promise((resolve, reject) => {
+    if (terminalError) { reject(terminalError); return; }
     const id = ++sequence;
     const timer = setTimeout(() => { pending.delete(id); reject(new Error(`Timeout: ${method}`)); }, 20000);
     pending.set(id, { resolve, reject, timer });
@@ -52,6 +56,10 @@ export function connectMcp(command) {
       if (result.isError) throw new Error(JSON.stringify(result));
       return result;
     },
-    close() { child.stdin.end(); child.kill(); }
+    close() {
+      if (!terminalError) fail(new Error('MCP client closed'));
+      child.stdin.end();
+      child.kill();
+    }
   };
 }

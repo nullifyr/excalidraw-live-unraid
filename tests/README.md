@@ -1,6 +1,10 @@
 # Acceptance tests
 
 `python3 tests/validate-template.py` checks the public installation contract.
+`node --test tests/mcp-client.test.mjs` checks the acceptance-test MCP client
+with local synthetic child processes; it does not contact Docker or a canvas.
+Both checks run on pull requests and main-branch pushes without publishing an
+image.
 The image build runs upstream's stdio, loopback binding, rendering, scene
 integrity and durability tests, plus both TypeScript checks.
 
