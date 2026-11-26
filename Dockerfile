@@ -1,15 +1,21 @@
 # syntax=docker/dockerfile:1
-# Upstream is an unmodified Git submodule pinned in the repository tree.
-FROM node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20 AS build
+# Upstream is a Git submodule pinned in the repository tree. One build-time source
+# patch (below) adapts it to zod 4; the build fails if the patch no longer applies.
+FROM node:24-bookworm-slim@sha256:873f586f3794f52281bd039bf02c048a0be08fde619338f9941bad1eb6b34530 AS build
 WORKDIR /app
 COPY build/package*.json ./
 RUN npm ci && npm audit --audit-level=moderate
 COPY vendor/mcp_excalidraw/ ./
 COPY build/package*.json ./
+# zod 4 requires an explicit key schema for z.record (zod 3 accepted one argument).
+RUN grep -q 'z.record(z.any())' src/core/mcp-dispatch.ts \
+    && sed -i 's/z\.record(z\.any())/z.record(z.string(), z.any())/' src/core/mcp-dispatch.ts \
+    && ! grep -rq 'z.record(z.any())' src
 RUN npm run build && npm run type-check && npm run type-check:frontend
 RUN node scripts/check-mcp-stdio.mjs && node scripts/check-local-bind.mjs \
     && node scripts/check-state-integrity.mjs && node scripts/check-durable-state.mjs \
-    && node scripts/check-render.mjs
+    && node scripts/check-render.mjs && node scripts/check-share-url.mjs \
+    && node scripts/check-file-paths.mjs && node scripts/check-selection.mjs
 COPY docs/excalidraw-MIT.txt /licenses/excalidraw-MIT.txt
 RUN mkdir -p /licenses && cp LICENSE /licenses/mcp-excalidraw-MIT.txt \
     && cp assets/fonts/LICENSES.md /licenses/fonts-OFL.md \
@@ -18,8 +24,8 @@ RUN mkdir -p /licenses && cp LICENSE /licenses/mcp-excalidraw-MIT.txt \
     && mkdir -p node_modules/@excalidraw/excalidraw/dist/prod \
     && mv /tmp/browser-fonts node_modules/@excalidraw/excalidraw/dist/prod/fonts
 
-FROM node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20 AS runtime
-ARG VERSION=1.0.1
+FROM node:24-bookworm-slim@sha256:873f586f3794f52281bd039bf02c048a0be08fde619338f9941bad1eb6b34530 AS runtime
+ARG VERSION=1.0.2
 ARG REVISION=unknown
 LABEL org.opencontainers.image.title="Excalidraw Live" \
       org.opencontainers.image.description="Persistent Excalidraw canvas and stdio MCP, packaged for Unraid" \
@@ -28,7 +34,7 @@ LABEL org.opencontainers.image.title="Excalidraw Live" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.version=$VERSION \
       org.opencontainers.image.revision=$REVISION \
-      io.excalidraw.upstream.revision="8084a1c8b410d625fcfd59d5cffb32f3a86a2a6f"
+      io.excalidraw.upstream.revision="81720ac819d2325177cd6137c6ad41d52d0f5374"
 RUN useradd --uid 99 --gid 100 --no-create-home --home-dir /nonexistent excalidraw \
     && mkdir /data && chown 99:100 /data
 WORKDIR /app
